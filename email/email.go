@@ -9,16 +9,13 @@ import (
 	"strings"
 )
 
-// Timeout of connection dial
-const Timeout = 10
-
 // Credential stores smtp data
 type Credential struct {
-	Host  string
-	Port  string
-	Login string
-	Pass  string
-	TLS   bool
+	Host  string `json:"host"`
+	Port  string `json:"port"`
+	Login string `json:"login"`
+	Pass  string `json:"pass"`
+	TLS   bool   `json:"tls"`
 }
 
 // Message contains data to prepare an email
@@ -41,6 +38,12 @@ func NewClient(credential Credential, c chan<- Result) {
 	tlsconfig := &tls.Config{
 		InsecureSkipVerify: true,
 		ServerName:         credential.Host,
+	}
+
+	_, err := net.LookupHost(credential.Host)
+	if err != nil {
+		c <- Result{nil, err}
+		return
 	}
 
 	// Connect to the remote SMTP server.
@@ -95,7 +98,8 @@ func prepareMessage(msg Message) (string, error) {
 	return message, nil
 }
 
-func validateEmail(e string) (bool, error) {
+// ValidateEmail validates email address
+func ValidateEmail(e string) (bool, error) {
 	if !strings.Contains(e, "@") {
 		return false, fmt.Errorf("Invalid email address: %s", e)
 	}
@@ -114,11 +118,11 @@ func validateEmail(e string) (bool, error) {
 // Send sends an email
 func Send(c *smtp.Client, m Message) error {
 	// Validate emails
-	if _, err := validateEmail(m.From.Address); err != nil {
+	if _, err := ValidateEmail(m.From.Address); err != nil {
 		return err
 	}
 
-	if _, err := validateEmail(m.To.Address); err != nil {
+	if _, err := ValidateEmail(m.To.Address); err != nil {
 		return err
 	}
 
