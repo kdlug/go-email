@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/consul/api"
-	"github.com/kdlug/email/email"
+	"github.com/kdlug/go-email/email"
 )
 
 // ServiceName

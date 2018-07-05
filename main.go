@@ -10,9 +10,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/kdlug/email/config"
-	"github.com/kdlug/email/email"
-	"github.com/kdlug/email/randgen"
+	"github.com/kdlug/go-email/config"
+	"github.com/kdlug/go-email/email"
+	"github.com/kdlug/go-email/randgen"
 )
 
 // ServiceName
