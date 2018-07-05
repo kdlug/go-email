@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -12,10 +13,24 @@ import (
 // ServiceName
 const ServiceName = "email-service"
 
-type Handle api.KV
+// CKV holds pointer to KV
+type CKV struct {
+	*api.KV
+}
+
+// NewConfig returns CKV struct
+func NewConfig() *CKV {
+	// Get a new consul client
+	api, err := api.NewClient(api.DefaultConfig())
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return &CKV{api.KV()}
+}
 
 // GetTimeout timeout in seconds
-func GetTimeout(kv *api.KV) (int, error) {
+func (kv *CKV) GetTimeout() (int, error) {
 
 	// Lookup the pair
 	config, _, err := kv.Get(ServiceName+"/timeout", nil)
@@ -29,7 +44,7 @@ func GetTimeout(kv *api.KV) (int, error) {
 }
 
 // GetSender returs sender email
-func GetSender(kv *api.KV) (string, error) {
+func (kv *CKV) GetSender() (string, error) {
 	config, _, err := kv.Get(ServiceName+"/sender", nil)
 	value := string(config.Value)
 
@@ -46,7 +61,8 @@ func GetSender(kv *api.KV) (string, error) {
 }
 
 // GetReceipients emails
-func GetReceipients(kv *api.KV) ([]string, error) {
+// If at least one email is invalid it returns err
+func (kv *CKV) GetReceipients() ([]string, error) {
 	config, _, err := kv.Get(ServiceName+"/receipients", nil)
 	if err != nil {
 		return nil, err
@@ -64,8 +80,8 @@ func GetReceipients(kv *api.KV) ([]string, error) {
 	return values, nil
 }
 
-// GetCredentials get credentials for accounts
-func GetCredentials(kv *api.KV) ([]email.Credential, error) {
+// GetCredentials gets credentials for accounts
+func (kv *CKV) GetCredentials() ([]email.Credential, error) {
 	config, _, err := kv.Get(ServiceName+"/credentials", nil)
 
 	if err != nil {
