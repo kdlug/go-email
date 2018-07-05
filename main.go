@@ -10,9 +10,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/hashicorp/consul/api"
 	"github.com/kdlug/email/config"
 	"github.com/kdlug/email/email"
+	"github.com/kdlug/email/randgen"
 )
 
 // ServiceName
@@ -51,38 +51,27 @@ func Init(
 func main() {
 	// Logger
 	Init(ioutil.Discard, os.Stdout, os.Stdout, os.Stderr)
-	// Get a new consul client
-	consul, err := api.NewClient(api.DefaultConfig())
+
+	c := config.NewConfig()
+
+	timeout, err := c.GetTimeout()
+
 	if err != nil {
 		Error.Println(err)
 	}
 
-	// Get a handle to the KV API
-	kv := consul.KV()
-
-	// Lookup the pair
-	// timeoutConfig, _, err := kv.Get(ServiceName+"/timeout", nil)
-	// timeout, _ := strconv.Atoi(string(timeoutConfig.Value))
-	// if err != nil {
-	// 	Error.Println(err)
-	// }
-	timeout, err := config.GetTimeout(kv)
+	sender, err := c.GetSender()
 	if err != nil {
 		Error.Println(err)
 	}
 
-	sender, err := config.GetSender(kv)
-	if err != nil {
-		Error.Println(err)
-	}
-
-	receipients, err := config.GetReceipients(kv)
+	receipients, err := c.GetReceipients()
 	if err != nil {
 		Error.Println(err)
 	}
 	fmt.Println(receipients)
 
-	credentials, err := config.GetCredentials(kv)
+	credentials, err := c.GetCredentials()
 	if err != nil {
 		Error.Println(err)
 	}
@@ -90,7 +79,7 @@ func main() {
 	fmt.Println(timeout)
 	fmt.Println(sender)
 	fmt.Println(credentials)
-	return
+
 	// fmt.Println("CONSUL_TIMEOUT:", os.Getenv("CONSUL_TIMEOUT"))
 	// fmt.Println("CONSUL_ADDRESS:", os.Getenv("CONSUL_ADDRESS"))
 	// fmt.Println("CONSUL_SCHEME:", os.Getenv("CONSUL_SCHEME"))
@@ -98,7 +87,7 @@ func main() {
 	msg := email.Message{
 		mail.Address{"", sender},
 		mail.Address{"", receipients[0]},
-		"Test",
+		randgen.GenerateStr(10, "[TEST-", "]"),
 		"Test body",
 	}
 
