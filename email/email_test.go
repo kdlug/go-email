@@ -27,7 +27,7 @@ import (
 )
 
 func ExampleValidateEmail() {
-	res, err := validateEmail("john.doe@gmail.com")
+	res, err := ValidateEmail("john.doe@gmail.com")
 	fmt.Println(res)
 	fmt.Println(err)
 	// Output:
@@ -38,15 +38,15 @@ func ExampleValidateEmail() {
 func TestValidateInvalidEmail(t *testing.T) {
 	email := "john.doe"
 
-	if res, _ := validateEmail(email); res == true {
-		t.Errorf("validateEmail(%q) = %v", email, true)
+	if res, _ := ValidateEmail(email); res == true {
+		t.Errorf("ValidateEmail(%q) = %v", email, true)
 	}
 }
 func TestValidateNonExistentEmail(t *testing.T) {
 	email := "john.doe@gmail"
 
-	if res, _ := validateEmail(email); res == true {
-		t.Errorf("validateEmail(%q) = %v", email, false)
+	if res, _ := ValidateEmail(email); res == true {
+		t.Errorf("ValidateEmail(%q) = %v", email, false)
 	}
 }
 
@@ -63,7 +63,7 @@ func TestValidateEmail(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		if got, _ := validateEmail(test.input); got != test.want {
+		if got, _ := ValidateEmail(test.input); got != test.want {
 			t.Errorf("validateEmail(%q) = %v", test.input, test.want)
 		}
 	}
@@ -73,14 +73,14 @@ func TestValidateEmail(t *testing.T) {
 func BenchmarkValidateEmailEmpty(b *testing.B) {
 	// run function b.N times
 	for n := 0; n < b.N; n++ {
-		validateEmail("")
+		ValidateEmail("")
 	}
 }
 
 func BenchmarkValidateEmailValid(b *testing.B) {
 	// run function b.N times
 	for n := 0; n < b.N; n++ {
-		validateEmail("jogn.doe@gmail.com")
+		ValidateEmail("jogn.doe@gmail.com")
 	}
 }
 
